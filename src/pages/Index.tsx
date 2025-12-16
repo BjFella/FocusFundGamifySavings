@@ -1,9 +1,20 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
+
+// Define the route types
+type RootStackParamList = {
+  Index: undefined;
+  Profile: undefined;
+};
+
+type IndexScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Index'>;
+type IndexScreenRouteProp = RouteProp<RootStackParamList, 'Index'>;
 
 const Index = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<IndexScreenNavigationProp>();
 
   return (
     <View style={styles.container}>

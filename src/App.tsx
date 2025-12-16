@@ -9,7 +9,10 @@ const Stack = createStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator 
+        screenOptions={{ headerShown: false }}
+        initialRouteName="Index"
+      >
         <Stack.Screen name="Index" component={Index} />
         <Stack.Screen name="Profile" component={Profile} />
       </Stack.Navigator>
