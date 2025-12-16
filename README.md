@@ -24,7 +24,7 @@ A modern, responsive savings goal tracking application built with React, TypeScr
 
 ## 📱 Screenshots
 
-![App Screenshot 1](https://i.imgur.com/Q7EUmSA.png)
+![App Screenshot 1](https://i.imgur.com/2URqsXW.png)
 *Main dashboard showing goal cards with progress visualization*
 
 ![App Screenshot 2](https://i.imgur.com/AeZCjHG.png)
