@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Trash2, Wallet } from 'lucide-react';
+import { Trash2, Wallet, ArrowUp, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -55,25 +55,33 @@ export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete }: GoalCardProp
   const percentage = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
   const isCompleted = percentage >= 100;
   
-  const [showActions, setShowActions] = useState(false);
+  const [showCustomAmount, setShowCustomAmount] = useState(false);
   const [amount, setAmount] = useState('');
+  const [actionType, setActionType] = useState<'deposit' | 'withdraw' | null>(null);
   
-  const handleDeposit = () => {
+  const handleCustomAmount = (type: 'deposit' | 'withdraw') => {
+    setActionType(type);
+    setShowCustomAmount(true);
+  };
+  
+  const handleConfirm = () => {
     const value = parseFloat(amount);
     if (!isNaN(value) && value > 0) {
-      onDeposit(goal.id, value);
+      if (actionType === 'deposit') {
+        onDeposit(goal.id, value);
+      } else if (actionType === 'withdraw') {
+        onWithdraw(goal.id, value);
+      }
       setAmount('');
-      setShowActions(false);
+      setShowCustomAmount(false);
+      setActionType(null);
     }
   };
   
-  const handleWithdraw = () => {
-    const value = parseFloat(amount);
-    if (!isNaN(value) && value > 0 && value <= goal.currentAmount) {
-      onWithdraw(goal.id, value);
-      setAmount('');
-      setShowActions(false);
-    }
+  const handleCancel = () => {
+    setAmount('');
+    setShowCustomAmount(false);
+    setActionType(null);
   };
   
   return (
@@ -125,17 +133,7 @@ export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete }: GoalCardProp
           </div>
         </div>
         
-        <div className="flex gap-2 mt-4">
-          <Button
-            onClick={() => setShowActions(!showActions)}
-            className="flex-1 bg-purple-600 hover:bg-purple-700 transition-colors flex items-center justify-center gap-1"
-          >
-            <Wallet size={16} />
-            {showActions ? 'Cancel' : 'Manage'}
-          </Button>
-        </div>
-        
-        {showActions && (
+        {showCustomAmount ? (
           <div className="mt-4 pt-4 border-t border-slate-700">
             <div className="mb-3">
               <label className="block text-sm text-gray-400 mb-1">Amount ($)</label>
@@ -151,19 +149,46 @@ export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete }: GoalCardProp
             </div>
             <div className="flex gap-2">
               <Button
-                onClick={handleDeposit}
+                onClick={handleConfirm}
                 className="flex-1 bg-green-600 hover:bg-green-700 transition-colors"
               >
-                Deposit
+                {actionType === 'deposit' ? (
+                  <>
+                    <ArrowUp size={16} className="mr-1" />
+                    Deposit
+                  </>
+                ) : (
+                  <>
+                    <ArrowDown size={16} className="mr-1" />
+                    Withdraw
+                  </>
+                )}
               </Button>
               <Button
-                onClick={handleWithdraw}
-                variant="destructive"
+                onClick={handleCancel}
+                variant="secondary"
                 className="flex-1"
               >
-                Withdraw
+                Cancel
               </Button>
             </div>
+          </div>
+        ) : (
+          <div className="flex gap-2 mt-4">
+            <Button
+              onClick={() => handleCustomAmount('deposit')}
+              className="flex-1 bg-green-600 hover:bg-green-700 transition-colors flex items-center justify-center gap-1"
+            >
+              <ArrowUp size={16} />
+              Deposit
+            </Button>
+            <Button
+              onClick={() => handleCustomAmount('withdraw')}
+              className="flex-1 bg-red-600 hover:bg-red-700 transition-colors flex items-center justify-center gap-1"
+            >
+              <ArrowDown size={16} />
+              Withdraw
+            </Button>
           </div>
         )}
       </CardContent>
