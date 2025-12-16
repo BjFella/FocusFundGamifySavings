@@ -187,7 +187,7 @@ const Index = () => {
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="bg-slate-700 border-slate-600 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-600 file:text-white hover:file:bg-slate-500"
+                  className="bg-slate-700 border-slate-600 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-600 file:text-white hover:file:bg-slate-500 w-full"
                 />
                 {imagePreview && (
                   <div className="mt-2">
