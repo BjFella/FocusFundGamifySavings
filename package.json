@@ -3,12 +3,19 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "dist-electron/main.cjs",
+  "author": "User",
+  "description": "FocusFundGamifySavings Electron App",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron": "tsc -p electron/tsconfig.json && wait-on tcp:8080 && electron .",
+    "electron:dev": "concurrently -k \"npm run dev\" \"npm run electron\"",
+    "electron:build": "npm run build && tsc -p electron/tsconfig.json && electron-builder",
+    "dist": "npm run electron:build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -72,6 +79,9 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react-swc": "^3.9.0",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.2.1",
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
@@ -80,6 +90,25 @@
     "tailwindcss": "^3.4.11",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
-    "vite": "^6.3.4"
+    "vite": "^6.3.4",
+    "wait-on": "^9.0.3"
+  },
+  "build": {
+    "appId": "com.focusfund.gamifysavings",
+    "productName": "FocusFundGamifySavings",
+    "directories": {
+      "output": "dist-electron_installer"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    }
   }
 }
