@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Plus, PiggyBank, Target, Wallet } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, PiggyBank, Target, Wallet, Upload, Trash2, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { MadeWithDyad } from '@/components/made-with-dyad';
 
@@ -48,11 +48,13 @@ const ProgressBar = ({ current, target }: { current: number; target: number }) =
 const GoalCard = ({ 
   goal, 
   onDeposit,
-  onWithdraw
+  onWithdraw,
+  onDelete
 }: { 
   goal: Goal; 
   onDeposit: (id: string, amount: number) => void;
   onWithdraw: (id: string, amount: number) => void;
+  onDelete: (id: string) => void;
 }) => {
   const { blur, grayscale } = calculateClarity(goal.currentAmount, goal.targetAmount);
   const percentage = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
@@ -97,6 +99,14 @@ const GoalCard = ({
             </div>
           </div>
         )}
+        
+        <button
+          onClick={() => onDelete(goal.id)}
+          className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full transition-colors"
+          aria-label="Delete goal"
+        >
+          <Trash2 size={16} />
+        </button>
       </div>
       
       <h3 className="text-lg font-bold text-white mb-2 truncate">{goal.name}</h3>
@@ -162,12 +172,32 @@ const AddGoalForm = ({
   onAddGoal, 
   onCancel 
 }: { 
-  onAddGoal: (goal: Omit<Goal, 'id' | 'currentAmount'>) => void;
+  onAddGoal: (goal: Omit<Goal, 'id' | 'currentAmount'> & { imageUrl: string }) => void;
   onCancel: () => void;
 }) => {
   const [name, setName] = useState('');
   const [targetAmount, setTargetAmount] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setIsUploading(true);
+      // In a real app, you would upload to a service here
+      // For this demo, we'll just use a FileReader
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setImagePreview(result);
+        setImageUrl(result);
+        setIsUploading(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,15 +210,29 @@ const AddGoalForm = ({
       setName('');
       setTargetAmount('');
       setImageUrl('');
+      setImagePreview(null);
     }
+  };
+  
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
   
   return (
     <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 mb-6">
-      <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-        <Plus className="text-purple-400" />
-        Add New Goal
-      </h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <Plus className="text-purple-400" />
+          Add New Goal
+        </h2>
+        <button
+          onClick={onCancel}
+          className="text-gray-400 hover:text-white"
+          aria-label="Close form"
+        >
+          <X size={24} />
+        </button>
+      </div>
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -218,21 +262,70 @@ const AddGoalForm = ({
         </div>
         
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Image URL</label>
+          <label className="block text-sm text-gray-400 mb-1">Image</label>
+          
+          {imagePreview ? (
+            <div className="relative">
+              <img 
+                src={imagePreview} 
+                alt="Preview" 
+                className="w-full h-48 object-cover rounded-lg mb-2"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setImagePreview(null);
+                  setImageUrl('');
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                  }
+                }}
+                className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full"
+                aria-label="Remove image"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          ) : (
+            <div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                accept="image/*"
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={triggerFileInput}
+                disabled={isUploading}
+                className="w-full bg-slate-700 hover:bg-slate-600 text-white rounded-lg px-3 py-2 border border-slate-600 focus:border-purple-500 focus:outline-none flex items-center justify-center gap-2 transition-colors"
+              >
+                <Upload size={16} />
+                {isUploading ? 'Uploading...' : 'Upload Image'}
+              </button>
+            </div>
+          )}
+          
+          <div className="mt-2 text-center text-sm text-gray-400">or</div>
+          
           <input
             type="url"
             value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:border-purple-500 focus:outline-none"
+            onChange={(e) => {
+              setImageUrl(e.target.value);
+              setImagePreview(e.target.value);
+            }}
+            className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:border-purple-500 focus:outline-none mt-2"
             placeholder="https://example.com/image.jpg"
-            required
           />
         </div>
         
         <div className="flex gap-3 pt-2">
           <button
             type="submit"
-            className="flex-1 bg-gradient-to-r from-purple-600 to-green-600 hover:from-purple-700 hover:to-green-700 text-white py-2 px-4 rounded-lg font-medium transition-all"
+            disabled={!name || !targetAmount || !imageUrl}
+            className="flex-1 bg-gradient-to-r from-purple-600 to-green-600 hover:from-purple-700 hover:to-green-700 text-white py-2 px-4 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Add Goal
           </button>
@@ -309,7 +402,7 @@ const FocusFund = () => {
     });
   }, [goals, hasTriggeredConfetti]);
   
-  const addGoal = (newGoal: Omit<Goal, 'id' | 'currentAmount'>) => {
+  const addGoal = (newGoal: Omit<Goal, 'id' | 'currentAmount'> & { imageUrl: string }) => {
     const goal: Goal = {
       id: Date.now().toString(),
       currentAmount: 0,
@@ -333,6 +426,10 @@ const FocusFund = () => {
         ? { ...goal, currentAmount: Math.max(0, goal.currentAmount - amount) } 
         : goal
     ));
+  };
+  
+  const deleteGoal = (id: string) => {
+    setGoals(goals.filter(goal => goal.id !== id));
   };
   
   const totalSavings = goals.reduce((sum, goal) => sum + goal.currentAmount, 0);
@@ -392,6 +489,7 @@ const FocusFund = () => {
                 goal={goal} 
                 onDeposit={deposit}
                 onWithdraw={withdraw}
+                onDelete={deleteGoal}
               />
             ))}
           </div>
