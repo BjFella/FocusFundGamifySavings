@@ -83,7 +83,7 @@ export const AddGoalForm = ({ onAddGoal, onCancel }: AddGoalFormProps) => {
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Gaming PC"
               required
-              className="bg-slate-700 border-slate-600 focus:border-purple-500"
+              className="bg-slate-700 border-slate-600 focus:border-purple-500 text-white"
             />
           </div>
           
@@ -97,7 +97,7 @@ export const AddGoalForm = ({ onAddGoal, onCancel }: AddGoalFormProps) => {
               min="1"
               step="1"
               required
-              className="bg-slate-700 border-slate-600 focus:border-purple-500"
+              className="bg-slate-700 border-slate-600 focus:border-purple-500 text-white"
             />
           </div>
           
@@ -145,7 +145,7 @@ export const AddGoalForm = ({ onAddGoal, onCancel }: AddGoalFormProps) => {
                   onClick={triggerFileInput}
                   disabled={isUploading}
                   variant="secondary"
-                  className="w-full flex items-center justify-center gap-2"
+                  className="w-full flex items-center justify-center gap-2 text-white"
                 >
                   <Upload size={16} />
                   {isUploading ? 'Uploading...' : 'Upload Image'}
@@ -158,12 +158,9 @@ export const AddGoalForm = ({ onAddGoal, onCancel }: AddGoalFormProps) => {
             <Input
               type="url"
               value={imageUrl}
-              onChange={(e) => {
-                setImageUrl(e.target.value);
-                setImagePreview(e.target.value);
-              }}
+              onChange={(e) => setImageUrl(e.target.value)}
               placeholder="https://example.com/image.jpg"
-              className="bg-slate-700 border-slate-600 focus:border-purple-500 mt-2"
+              className="bg-slate-700 border-slate-600 focus:border-purple-500 text-white mt-2"
             />
           </div>
           
@@ -171,7 +168,7 @@ export const AddGoalForm = ({ onAddGoal, onCancel }: AddGoalFormProps) => {
             <Button
               type="submit"
               disabled={!name || !targetAmount || !imageUrl}
-              className="flex-1 bg-gradient-to-r from-purple-600 to-green-600 hover:from-purple-700 hover:to-green-700 transition-all disabled:opacity-50"
+              className="flex-1 bg-gradient-to-r from-purple-600 to-green-600 hover:from-purple-700 hover:to-green-700 transition-all disabled:opacity-50 text-white"
             >
               Add Goal
             </Button>
@@ -179,6 +176,7 @@ export const AddGoalForm = ({ onAddGoal, onCancel }: AddGoalFormProps) => {
               type="button"
               onClick={onCancel}
               variant="secondary"
+              className="flex-1 text-white"
             >
               Cancel
             </Button>

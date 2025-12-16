@@ -144,7 +144,7 @@ export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete }: GoalCardProp
                 placeholder="Enter amount"
                 min="0"
                 step="1"
-                className="bg-slate-700 border-slate-600 focus:border-purple-500"
+                className="bg-slate-700 border-slate-600 focus:border-purple-500 text-white"
               />
             </div>
             <div className="flex gap-2">
