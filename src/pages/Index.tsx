@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { Target } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { MadeWithDyad } from '@/components/made-with-dyad';
 import { GoalCard } from '@/components/GoalCard';
 import { AddGoalForm } from '@/components/AddGoalForm';
 import { Header } from '@/components/Header';
@@ -144,7 +143,6 @@ const FocusFund = () => {
           </div>
         )}
       </div>
-      <MadeWithDyad />
     </div>
   );
 };
