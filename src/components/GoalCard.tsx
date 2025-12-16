@@ -115,7 +115,7 @@ export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete }: GoalCardProp
             <Button
               onClick={() => setShowDepositInput(!showDepositInput)}
               variant="default"
-              className="flex-1 bg-gradient-to-r from-purple-600 to-green-600 hover:from-purple-700 hover:to-green-700 transition-all"
+              className="flex-1 bg-green-100 hover:bg-green-700 text-green-800 hover:text-white transition-all"
             >
               <Plus size={16} className="mr-2" />
               Deposit
@@ -143,7 +143,7 @@ export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete }: GoalCardProp
             <Button
               onClick={handleDeposit}
               variant="default"
-              className="bg-gradient-to-r from-purple-600 to-green-600 hover:from-purple-700 hover:to-green-700 transition-all"
+              className="bg-green-600 hover:bg-green-700 transition-all"
             >
               Confirm
             </Button>
