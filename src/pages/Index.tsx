@@ -5,7 +5,7 @@ import { GoalCard } from '@/components/GoalCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, TrendingUp, TrendingDown } from 'lucide-react';
+import { Plus, TrendingUp, TrendingDown, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface Goal {
@@ -43,6 +43,7 @@ const Index = () => {
   const [newGoalName, setNewGoalName] = useState('');
   const [newGoalAmount, setNewGoalAmount] = useState('');
   const [newGoalImage, setNewGoalImage] = useState('');
+  const [isAddGoalExpanded, setIsAddGoalExpanded] = useState(true);
 
   const handleAddGoal = () => {
     if (!newGoalName.trim() || !newGoalAmount || isNaN(parseFloat(newGoalAmount))) {
@@ -120,44 +121,56 @@ const Index = () => {
 
         <Card className="bg-slate-800 border-slate-700 mb-8">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
-              <Plus className="w-5 h-5" />
-              Add New Goal
+            <CardTitle className="flex items-center justify-between text-white">
+              <div className="flex items-center gap-2">
+                <Plus className="w-5 h-5" />
+                Add New Goal
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setIsAddGoalExpanded(!isAddGoalExpanded)}
+                className="text-white hover:bg-slate-700"
+              >
+                {isAddGoalExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              </Button>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Input
-                placeholder="Goal name"
-                value={newGoalName}
-                onChange={(e) => setNewGoalName(e.target.value)}
-                className="bg-slate-700 border-slate-600 text-white"
-              />
-            </div>
-            <div>
-              <Input
-                type="number"
-                placeholder="Target amount"
-                value={newGoalAmount}
-                onChange={(e) => setNewGoalAmount(e.target.value)}
-                className="bg-slate-700 border-slate-600 text-white"
-              />
-            </div>
-            <div>
-              <Input
-                placeholder="Image URL (optional)"
-                value={newGoalImage}
-                onChange={(e) => setNewGoalImage(e.target.value)}
-                className="bg-slate-700 border-slate-600 text-white"
-              />
-            </div>
-            <Button
-              onClick={handleAddGoal}
-              className="w-full bg-gradient-to-r from-purple-600 to-green-600 hover:from-purple-700 hover:to-green-700 transition-all"
-            >
-              Add Goal
-            </Button>
-          </CardContent>
+          {isAddGoalExpanded && (
+            <CardContent className="space-y-4">
+              <div>
+                <Input
+                  placeholder="Goal name"
+                  value={newGoalName}
+                  onChange={(e) => setNewGoalName(e.target.value)}
+                  className="bg-slate-700 border-slate-600 text-white"
+                />
+              </div>
+              <div>
+                <Input
+                  type="number"
+                  placeholder="Target amount"
+                  value={newGoalAmount}
+                  onChange={(e) => setNewGoalAmount(e.target.value)}
+                  className="bg-slate-700 border-slate-600 text-white"
+                />
+              </div>
+              <div>
+                <Input
+                  placeholder="Image URL (optional)"
+                  value={newGoalImage}
+                  onChange={(e) => setNewGoalImage(e.target.value)}
+                  className="bg-slate-700 border-slate-600 text-white"
+                />
+              </div>
+              <Button
+                onClick={handleAddGoal}
+                className="w-full bg-gradient-to-r from-purple-600 to-green-600 hover:from-purple-700 hover:to-green-700 transition-all"
+              >
+                Add Goal
+              </Button>
+            </CardContent>
+          )}
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
