@@ -1,9 +1,20 @@
 "use client";
 
 import React, { useState } from 'react';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Trash2, Plus, Minus, Edit3 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
+import { 
+  Edit3, 
+  Save, 
+  X, 
+  Plus, 
+  Minus,
+  Trash2,
+  Image as ImageIcon
+} from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 interface Goal {
   id: string;
@@ -21,216 +32,205 @@ interface GoalCardProps {
   onEditGoal: (id: string, newName: string, newTargetAmount: number) => void;
 }
 
-export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete, onEditGoal }: GoalCardProps) => {
-  const [depositAmount, setDepositAmount] = useState('');
-  const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [showDepositInput, setShowDepositInput] = useState(false);
-  const [showWithdrawInput, setShowWithdrawInput] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+export const GoalCard = ({ 
+  goal, 
+  onDeposit, 
+  onWithdraw, 
+  onDelete, 
+  onEditGoal 
+}: GoalCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(goal.name);
   const [editTargetAmount, setEditTargetAmount] = useState(goal.targetAmount.toString());
+  const [editImage, setEditImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const progressPercentage = (goal.currentAmount / goal.targetAmount) * 100;
-  const isCompleted = goal.currentAmount >= goal.targetAmount;
+  const progress = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
 
-  const handleDeposit = () => {
-    if (depositAmount && !isNaN(parseFloat(depositAmount))) {
-      onDeposit(goal.id, parseFloat(depositAmount));
-      setDepositAmount('');
-      setShowDepositInput(false);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setEditImage(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleWithdraw = () => {
-    if (withdrawAmount && !isNaN(parseFloat(withdrawAmount))) {
-      onWithdraw(goal.id, parseFloat(withdrawAmount));
-      setWithdrawAmount('');
-      setShowWithdrawInput(false);
+  const handleSave = () => {
+    if (!editName.trim() || isNaN(parseFloat(editTargetAmount))) {
+      toast.error('Please enter valid goal details');
+      return;
     }
+
+    let imageUrl = goal.imageUrl;
+    if (editImage) {
+      // In a real app, you would upload the file to a server and get the URL
+      // For this demo, we'll use the preview URL
+      imageUrl = imagePreview || imageUrl;
+    }
+
+    onEditGoal(goal.id, editName.trim(), parseFloat(editTargetAmount));
+    setIsEditing(false);
+    setEditImage(null);
+    setImagePreview(null);
+    toast.success('Goal updated successfully!');
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditName(goal.name);
+    setEditTargetAmount(goal.targetAmount.toString());
+    setEditImage(null);
+    setImagePreview(null);
   };
 
   const handleDelete = () => {
-    setIsDeleting(true);
-    setTimeout(() => {
+    if (window.confirm('Are you sure you want to delete this goal?')) {
       onDelete(goal.id);
-      setIsDeleting(false);
-    }, 300);
-  };
-
-  const handleEdit = () => {
-    if (editName.trim() && !isNaN(parseFloat(editTargetAmount))) {
-      onEditGoal(goal.id, editName.trim(), parseFloat(editTargetAmount));
-      setIsEditing(false);
+      toast.success('Goal deleted successfully!');
     }
   };
 
-  const handleCancelEdit = () => {
-    setEditName(goal.name);
-    setEditTargetAmount(goal.targetAmount.toString());
-    setIsEditing(false);
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(amount);
   };
 
-  // Calculate blur and grayscale based on progress
-  const blurValue = Math.max(0, 10 - progressPercentage / 10);
-  const grayscaleValue = Math.max(0, 100 - progressPercentage);
-
-  return (
-    <Card className="bg-slate-800 border-slate-700 overflow-hidden transition-all duration-300 hover:shadow-lg">
-      <div className="relative">
-        <div 
-          className="h-48 w-full bg-cover bg-center transition-all duration-500"
-          style={{ 
-            backgroundImage: `url(${goal.imageUrl})`,
-            filter: `blur(${blurValue}px) grayscale(${grayscaleValue}%)`
-          }}
-        />
-        {isCompleted && (
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-transparent flex items-end justify-center p-4">
-            <div className="text-center">
-              <h3 className="text-2xl font-bold text-green-400 mb-2">COMPLETED!</h3>
-              <p className="text-slate-300">Goal reached successfully</p>
-            </div>
-          </div>
-        )}
-      </div>
-      
-      <CardContent className="p-6">
-        {isEditing ? (
-          <div className="mb-4">
-            <input
-              type="text"
+  if (isEditing) {
+    return (
+      <Card className="bg-slate-800 border-slate-700 overflow-hidden">
+        <CardContent className="p-6 space-y-4">
+          <div>
+            <Input
+              placeholder="Goal name"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              className="w-full bg-slate-700 border-slate-600 text-white rounded-md px-3 py-2 mb-2 focus:border-purple-500 focus:outline-none"
+              className="bg-slate-700 border-slate-600 text-white"
             />
-            <input
+          </div>
+          <div>
+            <Input
               type="number"
+              placeholder="Target amount"
               value={editTargetAmount}
               onChange={(e) => setEditTargetAmount(e.target.value)}
-              className="w-full bg-slate-700 border-slate-600 text-white rounded-md px-3 py-2 mb-3 focus:border-purple-500 focus:outline-none"
+              className="bg-slate-700 border-slate-600 text-white"
             />
-            <div className="flex gap-2">
-              <Button
-                onClick={handleEdit}
-                variant="default"
-                className="flex-1 bg-green-600 hover:bg-green-700 transition-all"
-              >
-                Save
-              </Button>
-              <Button
-                onClick={handleCancelEdit}
-                variant="outline"
-                className="flex-1 border-slate-600 text-white hover:bg-slate-700 transition-colors"
-              >
-                Cancel
-              </Button>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Goal Image
+            </label>
+            <div className="flex items-center gap-4">
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="bg-slate-700 border-slate-600 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-600 file:text-white hover:file:bg-slate-500 w-full"
+              />
+              {imagePreview && (
+                <div className="flex-shrink-0">
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="w-16 h-16 rounded-md object-cover"
+                  />
+                </div>
+              )}
             </div>
           </div>
-        ) : (
-          <>
-            <div className="flex justify-between items-start mb-3">
-              <h3 className="text-xl font-bold text-white">{goal.name}</h3>
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => setIsEditing(true)}
-                  variant="ghost"
-                  size="icon"
-                  className="text-slate-400 hover:text-blue-400 transition-colors"
-                  aria-label="Edit goal"
-                >
-                  <Edit3 size={20} />
-                </Button>
-                <Button
-                  onClick={handleDelete}
-                  variant="ghost"
-                  size="icon"
-                  className="text-slate-400 hover:text-red-400 transition-colors"
-                  aria-label="Delete goal"
-                  disabled={isDeleting}
-                >
-                  <Trash2 size={20} />
-                </Button>
-              </div>
-            </div>
-            
-            <div className="mb-4">
-              <div className="flex justify-between text-sm text-gray-400 mb-1">
-                <span>Progress</span>
-                <span>${goal.currentAmount.toFixed(2)} of ${goal.targetAmount.toFixed(2)}</span>
-              </div>
-              <div className="w-full bg-slate-700 rounded-full h-2">
-                <div 
-                  className="bg-gradient-to-r from-purple-600 to-green-600 h-2 rounded-full transition-all duration-500 ease-out"
-                  style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-                ></div>
-              </div>
-            </div>
+        </CardContent>
+        <CardFooter className="flex justify-between gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleCancel}
+            className="flex-1 border-slate-600 text-white hover:bg-slate-700"
+          >
+            <X className="w-4 h-4 mr-2" />
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSave}
+            className="flex-1 bg-gradient-to-r from-purple-600 to-green-600 hover:from-purple-700 hover:to-green-700"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            Save Changes
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
 
-            {isCompleted ? (
-              <div className="text-center py-4">
-                <p className="text-green-400 font-medium">Goal has been completed!</p>
-              </div>
-            ) : (
-              <div className="flex gap-3">
-                <Button
-                  onClick={() => setShowDepositInput(!showDepositInput)}
-                  variant="default"
-                  className="flex-1 bg-green-100 hover:bg-green-700 text-green-800 hover:text-white transition-all"
-                >
-                  <Plus size={16} className="mr-2" />
-                  Deposit
-                </Button>
-                <Button
-                  onClick={() => setShowWithdrawInput(!showWithdrawInput)}
-                  variant="default"
-                  className="flex-1 bg-red-100 hover:bg-red-700 text-red-800 hover:text-white transition-colors duration-300"
-                >
-                  <Minus size={16} className="mr-2" />
-                  Withdraw
-                </Button>
-              </div>
-            )}
-
-            {showDepositInput && (
-              <div className="mt-3 flex gap-2">
-                <input
-                  type="number"
-                  value={depositAmount}
-                  onChange={(e) => setDepositAmount(e.target.value)}
-                  placeholder="Amount"
-                  className="flex-1 bg-slate-700 border-slate-600 text-white rounded-md px-3 py-2 focus:border-purple-500 focus:outline-none"
-                />
-                <Button
-                  onClick={handleDeposit}
-                  variant="default"
-                  className="bg-green-600 hover:bg-green-700 transition-all"
-                >
-                  Confirm
-                </Button>
-              </div>
-            )}
-
-            {showWithdrawInput && (
-              <div className="mt-3 flex gap-2">
-                <input
-                  type="number"
-                  value={withdrawAmount}
-                  onChange={(e) => setWithdrawAmount(e.target.value)}
-                  placeholder="Amount"
-                  className="flex-1 bg-slate-700 border-slate-600 text-white rounded-md px-3 py-2 focus:border-purple-500 focus:outline-none"
-                />
-                <Button
-                  onClick={handleWithdraw}
-                  variant="destructive"
-                  className="bg-red-600 hover:bg-red-700 transition-all"
-                >
-                  Confirm
-                </Button>
-              </div>
-            )}
-          </>
-        )}
+  return (
+    <Card className="bg-slate-800 border-slate-700 overflow-hidden">
+      <div className="relative">
+        <img 
+          src={goal.imageUrl} 
+          alt={goal.name} 
+          className="w-full h-48 object-cover"
+        />
+        <div className="absolute top-2 right-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setIsEditing(true)}
+            className="bg-black/50 hover:bg-black/70 text-white"
+          >
+            <Edit3 className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+      <CardContent className="p-6">
+        <div className="flex justify-between items-start mb-3">
+          <h3 className="text-xl font-bold text-white">{goal.name}</h3>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleDelete}
+            className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
+        
+        <div className="mb-4">
+          <div className="flex justify-between text-sm text-slate-400 mb-1">
+            <span>Progress</span>
+            <span>{formatCurrency(goal.currentAmount)} of {formatCurrency(goal.targetAmount)}</span>
+          </div>
+          <Progress value={progress} className="h-2 bg-slate-700" />
+        </div>
+        
+        <div className="flex justify-between items-center">
+          <div className="text-sm text-slate-400">
+            {Math.round(progress)}% complete
+          </div>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onWithdraw(goal.id, 100)}
+              className="border-slate-600 text-white hover:bg-slate-700"
+            >
+              <Minus className="w-4 h-4" />
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onDeposit(goal.id, 100)}
+              className="border-slate-600 text-white hover:bg-slate-700"
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
