@@ -120,7 +120,7 @@ const Index = () => {
 
         <Card className="bg-slate-800 border-slate-700 mb-8">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-white">
               <Plus className="w-5 h-5" />
               Add New Goal
             </CardTitle>
@@ -168,8 +168,8 @@ const Index = () => {
                   <TrendingUp className="w-6 h-6 text-green-400" />
                 </div>
                 <div>
-                  <p className="text-slate-400">Total Goals</p>
-                  <p className="text-2xl font-bold">{goals.length}</p>
+                  <p className="text-white">Total Goals</p>
+                  <p className="text-2xl font-bold text-white">{goals.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -181,8 +181,8 @@ const Index = () => {
                   <TrendingDown className="w-6 h-6 text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-slate-400">Total Saved</p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-white">Total Saved</p>
+                  <p className="text-2xl font-bold text-white">
                     ${goals.reduce((sum, goal) => sum + goal.currentAmount, 0).toFixed(2)}
                   </p>
                 </div>
@@ -196,8 +196,8 @@ const Index = () => {
                   <TrendingUp className="w-6 h-6 text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-slate-400">Total Target</p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-white">Total Target</p>
+                  <p className="text-2xl font-bold text-white">
                     ${goals.reduce((sum, goal) => sum + goal.targetAmount, 0).toFixed(2)}
                   </p>
                 </div>
