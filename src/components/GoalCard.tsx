@@ -81,16 +81,19 @@ export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete }: GoalCardProp
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-3">
           <h3 className="text-xl font-bold text-white">{goal.name}</h3>
-          <Button
-            onClick={handleDelete}
-            variant="ghost"
-            size="icon"
-            className="text-slate-400 hover:text-red-400 transition-colors"
-            aria-label="Delete goal"
-            disabled={isDeleting}
-          >
-            <Trash2 size={20} />
-          </Button>
+          <div className="relative">
+            <div className="absolute -inset-1 bg-red-500/20 rounded-full scale-110"></div>
+            <Button
+              onClick={handleDelete}
+              variant="ghost"
+              size="icon"
+              className="text-slate-400 hover:text-red-400 transition-colors relative z-10"
+              aria-label="Delete goal"
+              disabled={isDeleting}
+            >
+              <Trash2 size={20} />
+            </Button>
+          </div>
         </div>
         
         <div className="mb-4">
