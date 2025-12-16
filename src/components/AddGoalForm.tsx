@@ -176,7 +176,7 @@ export const AddGoalForm = ({ onAddGoal, onCancel }: AddGoalFormProps) => {
               type="button"
               onClick={onCancel}
               variant="secondary"
-              className="flex-1 text-white"
+              className="flex-1 text-slate-900"
             >
               Cancel
             </Button>
