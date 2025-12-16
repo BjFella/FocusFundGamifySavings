@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Trash2, Plus, Minus } from 'lucide-react';
+import { Trash2, Plus, Minus, Edit3 } from 'lucide-react';
 
 interface Goal {
   id: string;
@@ -18,14 +18,18 @@ interface GoalCardProps {
   onDeposit: (id: string, amount: number) => void;
   onWithdraw: (id: string, amount: number) => void;
   onDelete: (id: string) => void;
+  onEditGoal: (id: string, newName: string, newTargetAmount: number) => void;
 }
 
-export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete }: GoalCardProps) => {
+export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete, onEditGoal }: GoalCardProps) => {
   const [depositAmount, setDepositAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [showDepositInput, setShowDepositInput] = useState(false);
   const [showWithdrawInput, setShowWithdrawInput] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(goal.name);
+  const [editTargetAmount, setEditTargetAmount] = useState(goal.targetAmount.toString());
 
   const progressPercentage = (goal.currentAmount / goal.targetAmount) * 100;
   const isCompleted = goal.currentAmount >= goal.targetAmount;
@@ -54,6 +58,19 @@ export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete }: GoalCardProp
     }, 300);
   };
 
+  const handleEdit = () => {
+    if (editName.trim() && !isNaN(parseFloat(editTargetAmount))) {
+      onEditGoal(goal.id, editName.trim(), parseFloat(editTargetAmount));
+      setIsEditing(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditName(goal.name);
+    setEditTargetAmount(goal.targetAmount.toString());
+    setIsEditing(false);
+  };
+
   // Calculate blur and grayscale based on progress
   const blurValue = Math.max(0, 10 - progressPercentage / 10);
   const grayscaleValue = Math.max(0, 100 - progressPercentage);
@@ -79,94 +96,140 @@ export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete }: GoalCardProp
       </div>
       
       <CardContent className="p-6">
-        <div className="flex justify-between items-start mb-3">
-          <h3 className="text-xl font-bold text-white">{goal.name}</h3>
-          <Button
-            onClick={handleDelete}
-            variant="ghost"
-            size="icon"
-            className="text-slate-400 hover:text-red-400 transition-colors"
-            aria-label="Delete goal"
-            disabled={isDeleting}
-          >
-            <Trash2 size={20} />
-          </Button>
-        </div>
-        
-        <div className="mb-4">
-          <div className="flex justify-between text-sm text-gray-400 mb-1">
-            <span>Progress</span>
-            <span>${goal.currentAmount.toFixed(2)} of ${goal.targetAmount.toFixed(2)}</span>
-          </div>
-          <div className="w-full bg-slate-700 rounded-full h-2">
-            <div 
-              className="bg-gradient-to-r from-purple-600 to-green-600 h-2 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-            ></div>
-          </div>
-        </div>
-
-        {isCompleted ? (
-          <div className="text-center py-4">
-            <p className="text-green-400 font-medium">Goal has been completed!</p>
+        {isEditing ? (
+          <div className="mb-4">
+            <input
+              type="text"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              className="w-full bg-slate-700 border-slate-600 text-white rounded-md px-3 py-2 mb-2 focus:border-purple-500 focus:outline-none"
+            />
+            <input
+              type="number"
+              value={editTargetAmount}
+              onChange={(e) => setEditTargetAmount(e.target.value)}
+              className="w-full bg-slate-700 border-slate-600 text-white rounded-md px-3 py-2 mb-3 focus:border-purple-500 focus:outline-none"
+            />
+            <div className="flex gap-2">
+              <Button
+                onClick={handleEdit}
+                variant="default"
+                className="flex-1 bg-green-600 hover:bg-green-700 transition-all"
+              >
+                Save
+              </Button>
+              <Button
+                onClick={handleCancelEdit}
+                variant="outline"
+                className="flex-1 border-slate-600 text-white hover:bg-slate-700 transition-colors"
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
         ) : (
-          <div className="flex gap-3">
-            <Button
-              onClick={() => setShowDepositInput(!showDepositInput)}
-              variant="default"
-              className="flex-1 bg-green-100 hover:bg-green-700 text-green-800 hover:text-white transition-all"
-            >
-              <Plus size={16} className="mr-2" />
-              Deposit
-            </Button>
-            <Button
-              onClick={() => setShowWithdrawInput(!showWithdrawInput)}
-              variant="default"
-              className="flex-1 bg-red-100 hover:bg-red-700 text-red-800 hover:text-white transition-colors duration-300"
-            >
-              <Minus size={16} className="mr-2" />
-              Withdraw
-            </Button>
-          </div>
-        )}
+          <>
+            <div className="flex justify-between items-start mb-3">
+              <h3 className="text-xl font-bold text-white">{goal.name}</h3>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  variant="ghost"
+                  size="icon"
+                  className="text-slate-400 hover:text-blue-400 transition-colors"
+                  aria-label="Edit goal"
+                >
+                  <Edit3 size={20} />
+                </Button>
+                <Button
+                  onClick={handleDelete}
+                  variant="ghost"
+                  size="icon"
+                  className="text-slate-400 hover:text-red-400 transition-colors"
+                  aria-label="Delete goal"
+                  disabled={isDeleting}
+                >
+                  <Trash2 size={20} />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <div className="flex justify-between text-sm text-gray-400 mb-1">
+                <span>Progress</span>
+                <span>${goal.currentAmount.toFixed(2)} of ${goal.targetAmount.toFixed(2)}</span>
+              </div>
+              <div className="w-full bg-slate-700 rounded-full h-2">
+                <div 
+                  className="bg-gradient-to-r from-purple-600 to-green-600 h-2 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+                ></div>
+              </div>
+            </div>
 
-        {showDepositInput && (
-          <div className="mt-3 flex gap-2">
-            <input
-              type="number"
-              value={depositAmount}
-              onChange={(e) => setDepositAmount(e.target.value)}
-              placeholder="Amount"
-              className="flex-1 bg-slate-700 border-slate-600 text-white rounded-md px-3 py-2 focus:border-purple-500 focus:outline-none"
-            />
-            <Button
-              onClick={handleDeposit}
-              variant="default"
-              className="bg-green-600 hover:bg-green-700 transition-all"
-            >
-              Confirm
-            </Button>
-          </div>
-        )}
+            {isCompleted ? (
+              <div className="text-center py-4">
+                <p className="text-green-400 font-medium">Goal has been completed!</p>
+              </div>
+            ) : (
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setShowDepositInput(!showDepositInput)}
+                  variant="default"
+                  className="flex-1 bg-green-100 hover:bg-green-700 text-green-800 hover:text-white transition-all"
+                >
+                  <Plus size={16} className="mr-2" />
+                  Deposit
+                </Button>
+                <Button
+                  onClick={() => setShowWithdrawInput(!showWithdrawInput)}
+                  variant="default"
+                  className="flex-1 bg-red-100 hover:bg-red-700 text-red-800 hover:text-white transition-colors duration-300"
+                >
+                  <Minus size={16} className="mr-2" />
+                  Withdraw
+                </Button>
+              </div>
+            )}
 
-        {showWithdrawInput && (
-          <div className="mt-3 flex gap-2">
-            <input
-              type="number"
-              value={withdrawAmount}
-              onChange={(e) => setWithdrawAmount(e.target.value)}
-              placeholder="Amount"
-              className="flex-1 bg-slate-700 border-slate-600 text-white rounded-md px-3 py-2 focus:border-purple-500 focus:outline-none"
-            />
-            <Button
-              onClick={handleWithdraw}
-              variant="destructive"
-              className="bg-red-600 hover:bg-red-700 transition-all"
-            >
-              Confirm
-            </Button>
-          </div>
+            {showDepositInput && (
+              <div className="mt-3 flex gap-2">
+                <input
+                  type="number"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(e.target.value)}
+                  placeholder="Amount"
+                  className="flex-1 bg-slate-700 border-slate-600 text-white rounded-md px-3 py-2 focus:border-purple-500 focus:outline-none"
+                />
+                <Button
+                  onClick={handleDeposit}
+                  variant="default"
+                  className="bg-green-600 hover:bg-green-700 transition-all"
+                >
+                  Confirm
+                </Button>
+              </div>
+            )}
+
+            {showWithdrawInput && (
+              <div className="mt-3 flex gap-2">
+                <input
+                  type="number"
+                  value={withdrawAmount}
+                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                  placeholder="Amount"
+                  className="flex-1 bg-slate-700 border-slate-600 text-white rounded-md px-3 py-2 focus:border-purple-500 focus:outline-none"
+                />
+                <Button
+                  onClick={handleWithdraw}
+                  variant="destructive"
+                  className="bg-red-600 hover:bg-red-700 transition-all"
+                >
+                  Confirm
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

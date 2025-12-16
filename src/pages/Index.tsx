@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Target } from 'lucide-react';
-import confetti from 'canvas-confetti';
+import React, { useState } from 'react';
 import { GoalCard } from '@/components/GoalCard';
-import { AddGoalForm } from '@/components/AddGoalForm';
-import { Header } from '@/components/Header';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Plus, TrendingUp, TrendingDown } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 interface Goal {
   id: string;
@@ -15,136 +16,198 @@ interface Goal {
   imageUrl: string;
 }
 
-const FocusFund = () => {
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState<Record<string, boolean>>({});
-  
-  // Initialize with demo goals
-  useEffect(() => {
-    const savedGoals = localStorage.getItem('focusFundGoals');
-    if (savedGoals) {
-      setGoals(JSON.parse(savedGoals));
-    } else {
-      const demoGoals: Goal[] = [
-        {
-          id: '1',
-          name: 'High-End Gaming PC',
-          targetAmount: 2500,
-          currentAmount: 300,
-          imageUrl: 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'
-        },
-        {
-          id: '2',
-          name: 'Yamaha Bolt Motorcycle',
-          targetAmount: 5000,
-          currentAmount: 1200,
-          imageUrl: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'
-        }
-      ];
-      setGoals(demoGoals);
+const Index = () => {
+  const [goals, setGoals] = useState<Goal[]>([
+    {
+      id: '1',
+      name: 'New Car',
+      targetAmount: 10000,
+      currentAmount: 3500,
+      imageUrl: 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=400&h=200&fit=crop'
+    },
+    {
+      id: '2',
+      name: 'Vacation',
+      targetAmount: 2500,
+      currentAmount: 1200,
+      imageUrl: 'https://images.unsplash.com/photo-1503220317375-aaad66543020?w=400&h=200&fit=crop'
+    },
+    {
+      id: '3',
+      name: 'Emergency Fund',
+      targetAmount: 5000,
+      currentAmount: 2800,
+      imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=200&fit=crop'
     }
-  }, []);
-  
-  // Save to localStorage
-  useEffect(() => {
-    if (goals.length > 0) {
-      localStorage.setItem('focusFundGoals', JSON.stringify(goals));
+  ]);
+  const [newGoalName, setNewGoalName] = useState('');
+  const [newGoalAmount, setNewGoalAmount] = useState('');
+  const [newGoalImage, setNewGoalImage] = useState('');
+
+  const handleAddGoal = () => {
+    if (!newGoalName.trim() || !newGoalAmount || isNaN(parseFloat(newGoalAmount))) {
+      toast.error('Please enter valid goal details');
+      return;
     }
-  }, [goals]);
-  
-  // Check for completed goals and trigger confetti
-  useEffect(() => {
-    goals.forEach(goal => {
-      const percentage = goal.currentAmount / goal.targetAmount;
-      if (percentage >= 1 && !hasTriggeredConfetti[goal.id]) {
-        // Trigger confetti
-        confetti({
-          particleCount: 150,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ['#bf00ff', '#00ff9d']
-        });
-        
-        // Mark as triggered to prevent multiple confetti
-        setHasTriggeredConfetti(prev => ({
-          ...prev,
-          [goal.id]: true
-        }));
-      }
-    });
-  }, [goals, hasTriggeredConfetti]);
-  
-  const addGoal = (newGoal: { name: string; targetAmount: number; imageUrl: string }) => {
-    const goal: Goal = {
+
+    const newGoal: Goal = {
       id: Date.now().toString(),
+      name: newGoalName.trim(),
+      targetAmount: parseFloat(newGoalAmount),
       currentAmount: 0,
-      ...newGoal
+      imageUrl: newGoalImage || 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=400&h=200&fit=crop'
     };
-    setGoals([...goals, goal]);
-    setShowAddForm(false);
+
+    setGoals([...goals, newGoal]);
+    setNewGoalName('');
+    setNewGoalAmount('');
+    setNewGoalImage('');
+    toast.success('Goal added successfully!');
   };
-  
-  const deposit = (id: string, amount: number) => {
+
+  const handleDeposit = (id: string, amount: number) => {
     setGoals(goals.map(goal => 
       goal.id === id 
-        ? { ...goal, currentAmount: goal.currentAmount + amount } 
+        ? { ...goal, currentAmount: goal.currentAmount + amount }
         : goal
     ));
+    toast.success(`Deposited $${amount.toFixed(2)} successfully!`);
   };
-  
-  const withdraw = (id: string, amount: number) => {
+
+  const handleWithdraw = (id: string, amount: number) => {
     setGoals(goals.map(goal => 
-      goal.id === id 
-        ? { ...goal, currentAmount: Math.max(0, goal.currentAmount - amount) } 
+      goal.id === id && goal.currentAmount >= amount
+        ? { ...goal, currentAmount: goal.currentAmount - amount }
         : goal
     ));
+    toast.success(`Withdrew $${amount.toFixed(2)} successfully!`);
   };
-  
-  const deleteGoal = (id: string) => {
+
+  const handleDelete = (id: string) => {
     setGoals(goals.filter(goal => goal.id !== id));
+    toast.success('Goal deleted successfully!');
   };
-  
-  const totalSavings = goals.reduce((sum, goal) => sum + goal.currentAmount, 0);
-  
+
+  const handleEditGoal = (id: string, newName: string, newTargetAmount: number) => {
+    setGoals(goals.map(goal => 
+      goal.id === id 
+        ? { ...goal, name: newName, targetAmount: newTargetAmount }
+        : goal
+    ));
+    toast.success('Goal updated successfully!');
+  };
+
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
-        <Header 
-          totalSavings={totalSavings} 
-          showAddForm={showAddForm}
-          onToggleAddForm={() => setShowAddForm(!showAddForm)}
-        />
-        
-        {showAddForm && (
-          <AddGoalForm 
-            onAddGoal={addGoal} 
-            onCancel={() => setShowAddForm(false)} 
-          />
-        )}
-        
-        {goals.length === 0 ? (
-          <div className="text-center py-12">
-            <Target className="mx-auto text-slate-600 mb-4" size={64} />
-            <h2 className="text-xl font-bold text-slate-400 mb-2">No Goals Yet</h2>
-            <p className="text-slate-500">Add your first savings goal to get started</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {goals.map(goal => (
-              <GoalCard 
-                key={goal.id} 
-                goal={goal} 
-                onDeposit={deposit}
-                onWithdraw={withdraw}
-                onDelete={deleteGoal}
+        <header className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Goal Tracker</h1>
+          <p className="text-slate-400">Track your savings goals and reach your targets</p>
+        </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {goals.map(goal => (
+            <GoalCard
+              key={goal.id}
+              goal={goal}
+              onDeposit={handleDeposit}
+              onWithdraw={handleWithdraw}
+              onDelete={handleDelete}
+              onEditGoal={handleEditGoal}
+            />
+          ))}
+        </div>
+
+        <Card className="bg-slate-800 border-slate-700 mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Plus className="w-5 h-5" />
+              Add New Goal
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Input
+                placeholder="Goal name"
+                value={newGoalName}
+                onChange={(e) => setNewGoalName(e.target.value)}
+                className="bg-slate-700 border-slate-600 text-white"
               />
-            ))}
-          </div>
-        )}
+            </div>
+            <div>
+              <Input
+                type="number"
+                placeholder="Target amount"
+                value={newGoalAmount}
+                onChange={(e) => setNewGoalAmount(e.target.value)}
+                className="bg-slate-700 border-slate-600 text-white"
+              />
+            </div>
+            <div>
+              <Input
+                placeholder="Image URL (optional)"
+                value={newGoalImage}
+                onChange={(e) => setNewGoalImage(e.target.value)}
+                className="bg-slate-700 border-slate-600 text-white"
+              />
+            </div>
+            <Button
+              onClick={handleAddGoal}
+              className="w-full bg-gradient-to-r from-purple-600 to-green-600 hover:from-purple-700 hover:to-green-700 transition-all"
+            >
+              Add Goal
+            </Button>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="bg-slate-800 border-slate-700">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-green-500/20 rounded-full">
+                  <TrendingUp className="w-6 h-6 text-green-400" />
+                </div>
+                <div>
+                  <p className="text-slate-400">Total Goals</p>
+                  <p className="text-2xl font-bold">{goals.length}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-slate-800 border-slate-700">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-blue-500/20 rounded-full">
+                  <TrendingDown className="w-6 h-6 text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-slate-400">Total Saved</p>
+                  <p className="text-2xl font-bold">
+                    ${goals.reduce((sum, goal) => sum + goal.currentAmount, 0).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-slate-800 border-slate-700">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-purple-500/20 rounded-full">
+                  <TrendingUp className="w-6 h-6 text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-slate-400">Total Target</p>
+                  <p className="text-2xl font-bold">
+                    ${goals.reduce((sum, goal) => sum + goal.targetAmount, 0).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
 };
 
-export default FocusFund;
+export default Index;
