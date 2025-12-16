@@ -123,7 +123,7 @@ export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete }: GoalCardProp
             <Button
               onClick={() => setShowWithdrawInput(!showWithdrawInput)}
               variant="default"
-              className="flex-1 bg-red-100 hover:bg-red-600 text-red-800 hover:text-white transition-colors duration-300"
+              className="flex-1 bg-red-500 hover:bg-red-700 text-white transition-colors duration-300"
             >
               <Minus size={16} className="mr-2" />
               Withdraw
