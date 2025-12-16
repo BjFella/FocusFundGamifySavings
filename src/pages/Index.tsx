@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoalCard } from '@/components/GoalCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, TrendingUp, TrendingDown, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, TrendingUp, TrendingDown, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface Goal {
@@ -45,6 +45,26 @@ const Index = () => {
   const [newGoalImage, setNewGoalImage] = useState<File | null>(null);
   const [isAddGoalExpanded, setIsAddGoalExpanded] = useState(true);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [lifetimeStats, setLifetimeStats] = useState({
+    totalGoalsCreated: 0,
+    totalGoalsCompleted: 0,
+    totalSaved: 0,
+    totalDeposits: 0,
+    totalWithdrawals: 0
+  });
+
+  // Load lifetime stats from localStorage on component mount
+  useEffect(() => {
+    const savedStats = localStorage.getItem('lifetimeStats');
+    if (savedStats) {
+      setLifetimeStats(JSON.parse(savedStats));
+    }
+  }, []);
+
+  // Save lifetime stats to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('lifetimeStats', JSON.stringify(lifetimeStats));
+  }, [lifetimeStats]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -87,6 +107,13 @@ const Index = () => {
     setNewGoalAmount('');
     setNewGoalImage(null);
     setImagePreview(null);
+    
+    // Update lifetime stats
+    setLifetimeStats(prev => ({
+      ...prev,
+      totalGoalsCreated: prev.totalGoalsCreated + 1
+    }));
+    
     toast.success('Goal added successfully!');
   };
 
@@ -96,6 +123,14 @@ const Index = () => {
         ? { ...goal, currentAmount: goal.currentAmount + amount }
         : goal
     ));
+    
+    // Update lifetime stats
+    setLifetimeStats(prev => ({
+      ...prev,
+      totalDeposits: prev.totalDeposits + 1,
+      totalSaved: prev.totalSaved + amount
+    }));
+    
     toast.success(`Deposited $${amount.toFixed(2)} successfully!`);
   };
 
@@ -105,10 +140,30 @@ const Index = () => {
         ? { ...goal, currentAmount: goal.currentAmount - amount }
         : goal
     ));
+    
+    // Update lifetime stats
+    setLifetimeStats(prev => ({
+      ...prev,
+      totalWithdrawals: prev.totalWithdrawals + 1,
+      totalSaved: prev.totalSaved - amount
+    }));
+    
     toast.success(`Withdrew $${amount.toFixed(2)} successfully!`);
   };
 
   const handleDelete = (id: string) => {
+    // Get the goal being deleted to update lifetime stats
+    const deletedGoal = goals.find(goal => goal.id === id);
+    if (deletedGoal) {
+      // Update lifetime stats based on goal completion
+      if (deletedGoal.currentAmount >= deletedGoal.targetAmount) {
+        setLifetimeStats(prev => ({
+          ...prev,
+          totalGoalsCompleted: prev.totalGoalsCompleted + 1
+        }));
+      }
+    }
+    
     setGoals(goals.filter(goal => goal.id !== id));
     toast.success('Goal deleted successfully!');
   };
@@ -120,6 +175,17 @@ const Index = () => {
         : goal
     ));
     toast.success('Goal updated successfully!');
+  };
+
+  const resetLifetimeStats = () => {
+    setLifetimeStats({
+      totalGoalsCreated: 0,
+      totalGoalsCompleted: 0,
+      totalSaved: 0,
+      totalDeposits: 0,
+      totalWithdrawals: 0
+    });
+    toast.success('Lifetime stats reset successfully!');
   };
 
   return (
@@ -209,7 +275,7 @@ const Index = () => {
           )}
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="bg-slate-800 border-slate-700">
             <CardContent className="p-6">
               <div className="flex items-center gap-3">
@@ -254,6 +320,48 @@ const Index = () => {
             </CardContent>
           </Card>
         </div>
+
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between text-white">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Lifetime Stats
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={resetLifetimeStats}
+                className="text-white hover:bg-slate-700"
+                title="Reset Lifetime Stats"
+              >
+                <RotateCcw className="w-5 h-5" />
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="bg-slate-700/50 p-4 rounded-lg">
+              <p className="text-slate-400 text-sm">Goals Created</p>
+              <p className="text-2xl font-bold text-white">{lifetimeStats.totalGoalsCreated}</p>
+            </div>
+            <div className="bg-slate-700/50 p-4 rounded-lg">
+              <p className="text-slate-400 text-sm">Goals Completed</p>
+              <p className="text-2xl font-bold text-white">{lifetimeStats.totalGoalsCompleted}</p>
+            </div>
+            <div className="bg-slate-700/50 p-4 rounded-lg">
+              <p className="text-slate-400 text-sm">Total Saved</p>
+              <p className="text-2xl font-bold text-white">${lifetimeStats.totalSaved.toFixed(2)}</p>
+            </div>
+            <div className="bg-slate-700/50 p-4 rounded-lg">
+              <p className="text-slate-400 text-sm">Total Deposits</p>
+              <p className="text-2xl font-bold text-white">{lifetimeStats.totalDeposits}</p>
+            </div>
+            <div className="bg-slate-700/50 p-4 rounded-lg">
+              <p className="text-slate-400 text-sm">Total Withdrawals</p>
+              <p className="text-2xl font-bold text-white">{lifetimeStats.totalWithdrawals}</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
