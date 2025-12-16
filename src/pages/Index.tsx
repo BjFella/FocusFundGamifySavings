@@ -82,31 +82,33 @@ const GoalCard = ({
   };
   
   return (
-    <div className="bg-slate-800 rounded-xl p-4 border border-slate-700 hover:border-purple-500 transition-all duration-300 shadow-lg">
-      <div className="relative overflow-hidden rounded-lg mb-4">
-        <img 
-          src={goal.imageUrl} 
-          alt={goal.name}
-          className="w-full h-48 object-cover transition-all duration-500"
-          style={{
-            filter: `grayscale(${grayscale}%) blur(${blur}px)`
-          }}
-        />
-        {isCompleted && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="text-center p-2 bg-purple-900 rounded-lg">
-              <span className="text-green-400 font-bold text-lg">COMPLETED!</span>
+    <div className="bg-slate-800 rounded-xl p-4 border border-slate-700 hover:border-purple-500 transition-all duration-300 shadow-lg flex flex-col h-full">
+      <div className="relative overflow-hidden rounded-lg mb-4 flex-grow">
+        <div className="relative w-full" style={{ paddingBottom: '100%' }}>
+          <img 
+            src={goal.imageUrl} 
+            alt={goal.name}
+            className="absolute inset-0 w-full h-full object-cover transition-all duration-500"
+            style={{
+              filter: `grayscale(${grayscale}%) blur(${blur}px)`
+            }}
+          />
+          {isCompleted && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="text-center p-2 bg-purple-900 rounded-lg">
+                <span className="text-green-400 font-bold text-lg">COMPLETED!</span>
+              </div>
             </div>
-          </div>
-        )}
-        
-        <button
-          onClick={() => onDelete(goal.id)}
-          className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full transition-colors"
-          aria-label="Delete goal"
-        >
-          <Trash2 size={16} />
-        </button>
+          )}
+          
+          <button
+            onClick={() => onDelete(goal.id)}
+            className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full transition-colors z-10"
+            aria-label="Delete goal"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       </div>
       
       <h3 className="text-lg font-bold text-white mb-2 truncate">{goal.name}</h3>
@@ -265,26 +267,28 @@ const AddGoalForm = ({
           <label className="block text-sm text-gray-400 mb-1">Image</label>
           
           {imagePreview ? (
-            <div className="relative">
-              <img 
-                src={imagePreview} 
-                alt="Preview" 
-                className="w-full h-48 object-cover rounded-lg mb-2"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  setImagePreview(null);
-                  setImageUrl('');
-                  if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                  }
-                }}
-                className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full"
-                aria-label="Remove image"
-              >
-                <X size={16} />
-              </button>
+            <div className="relative mb-3">
+              <div className="relative w-full" style={{ paddingBottom: '100%' }}>
+                <img 
+                  src={imagePreview} 
+                  alt="Preview" 
+                  className="absolute inset-0 w-full h-full object-cover rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImagePreview(null);
+                    setImageUrl('');
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = '';
+                    }
+                  }}
+                  className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full z-10"
+                  aria-label="Remove image"
+                >
+                  <X size={16} />
+                </button>
+              </div>
             </div>
           ) : (
             <div>
