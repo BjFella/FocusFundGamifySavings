@@ -42,8 +42,23 @@ const Index = () => {
   ]);
   const [newGoalName, setNewGoalName] = useState('');
   const [newGoalAmount, setNewGoalAmount] = useState('');
-  const [newGoalImage, setNewGoalImage] = useState('');
+  const [newGoalImage, setNewGoalImage] = useState<File | null>(null);
   const [isAddGoalExpanded, setIsAddGoalExpanded] = useState(true);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setNewGoalImage(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleAddGoal = () => {
     if (!newGoalName.trim() || !newGoalAmount || isNaN(parseFloat(newGoalAmount))) {
@@ -51,18 +66,27 @@ const Index = () => {
       return;
     }
 
+    // Generate image URL from file or use default
+    let imageUrl = 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=400&h=200&fit=crop';
+    if (newGoalImage) {
+      // In a real app, you would upload the file to a server and get the URL
+      // For this demo, we'll just use the preview URL
+      imageUrl = imagePreview || imageUrl;
+    }
+
     const newGoal: Goal = {
       id: Date.now().toString(),
       name: newGoalName.trim(),
       targetAmount: parseFloat(newGoalAmount),
       currentAmount: 0,
-      imageUrl: newGoalImage || 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=400&h=200&fit=crop'
+      imageUrl
     };
 
     setGoals([...goals, newGoal]);
     setNewGoalName('');
     setNewGoalAmount('');
-    setNewGoalImage('');
+    setNewGoalImage(null);
+    setImagePreview(null);
     toast.success('Goal added successfully!');
   };
 
@@ -156,12 +180,24 @@ const Index = () => {
                 />
               </div>
               <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Goal Image
+                </label>
                 <Input
-                  placeholder="Image URL (optional)"
-                  value={newGoalImage}
-                  onChange={(e) => setNewGoalImage(e.target.value)}
-                  className="bg-slate-700 border-slate-600 text-white"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="bg-slate-700 border-slate-600 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-600 file:text-white hover:file:bg-slate-500"
                 />
+                {imagePreview && (
+                  <div className="mt-2">
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      className="max-h-32 rounded-md object-cover"
+                    />
+                  </div>
+                )}
               </div>
               <Button
                 onClick={handleAddGoal}
