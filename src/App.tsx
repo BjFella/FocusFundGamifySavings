@@ -17,16 +17,14 @@ const App = () => (
       <Toaster />
       <Sonner />
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen 
             name="Home" 
             component={Index} 
-            options={{ headerShown: false }}
           />
           <Stack.Screen 
             name="NotFound" 
             component={NotFound} 
-            options={{ headerShown: false }}
           />
         </Stack.Navigator>
       </NavigationContainer>
