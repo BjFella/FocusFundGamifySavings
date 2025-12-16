@@ -283,7 +283,7 @@ const Index = () => {
                   <TrendingUp className="w-6 h-6 text-green-400" />
                 </div>
                 <div>
-                  <p className="text-white">Total Goals</p>
+                  <p className="text-white">Current Goals</p>
                   <p className="text-2xl font-bold text-white">{goals.length}</p>
                 </div>
               </div>
@@ -296,7 +296,7 @@ const Index = () => {
                   <TrendingDown className="w-6 h-6 text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-white">Total Saved</p>
+                  <p className="text-white">Current Saved</p>
                   <p className="text-2xl font-bold text-white">
                     ${goals.reduce((sum, goal) => sum + goal.currentAmount, 0).toFixed(2)}
                   </p>
@@ -311,7 +311,7 @@ const Index = () => {
                   <TrendingUp className="w-6 h-6 text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-white">Total Target</p>
+                  <p className="text-white">Current Target</p>
                   <p className="text-2xl font-bold text-white">
                     ${goals.reduce((sum, goal) => sum + goal.targetAmount, 0).toFixed(2)}
                   </p>
