@@ -92,6 +92,7 @@ const GoalCard = ({
             style={{
               filter: `grayscale(${grayscale}%) blur(${blur}px)`
             }}
+            draggable={false}
           />
           {isCompleted && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -273,6 +274,7 @@ const AddGoalForm = ({
                   src={imagePreview} 
                   alt="Preview" 
                   className="absolute inset-0 w-full h-full object-cover rounded-lg"
+                  draggable={false}
                 />
                 <button
                   type="button"
