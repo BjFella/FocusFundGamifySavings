@@ -34,7 +34,7 @@ A fun and engaging savings tracker that turns financial goal-setting into an enj
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/BjFella/FocusFundGamifySavings/tree/main/src
+git clone https://github.com/BjFella/FocusFundGamifySavings.git
 ```
 
 2. Install dependencies:
