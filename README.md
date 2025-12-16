@@ -21,7 +21,7 @@ A fun and engaging savings tracker that turns financial goal-setting into an enj
 
 ## Demo
 
-![Goal Tracker Demo](https://i.imgur.com/R2DDqRv.png)
+![Goal Tracker Demo](https://i.imgur.com/iCSeHes.png)
 
 ## Getting Started
 
