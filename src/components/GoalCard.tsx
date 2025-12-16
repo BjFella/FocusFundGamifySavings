@@ -78,9 +78,9 @@ export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete, onEditGoal }: 
   return (
     <Card className="bg-slate-800 border-slate-700 overflow-hidden transition-all duration-300 hover:shadow-lg">
       <div className="relative">
-        <div 
+        <div
           className="h-48 w-full bg-cover bg-center transition-all duration-500"
-          style={{ 
+          style={{
             backgroundImage: `url(${goal.imageUrl})`,
             filter: `blur(${blurValue}px) grayscale(${grayscaleValue}%)`
           }}
@@ -94,7 +94,7 @@ export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete, onEditGoal }: 
           </div>
         )}
       </div>
-      
+
       <CardContent className="p-6">
         {isEditing ? (
           <div className="mb-4">
@@ -153,81 +153,113 @@ export const GoalCard = ({ goal, onDeposit, onWithdraw, onDelete, onEditGoal }: 
                 </Button>
               </div>
             </div>
-            
+
             <div className="mb-4">
               <div className="flex justify-between text-sm text-gray-400 mb-1">
                 <span>Progress</span>
                 <span>${goal.currentAmount.toFixed(2)} of ${goal.targetAmount.toFixed(2)}</span>
               </div>
               <div className="w-full bg-slate-700 rounded-full h-2">
-                <div 
+                <div
                   className="bg-gradient-to-r from-purple-600 to-green-600 h-2 rounded-full transition-all duration-500 ease-out"
                   style={{ width: `${Math.min(progressPercentage, 100)}%` }}
                 ></div>
               </div>
             </div>
 
-            {isCompleted ? (
-              <div className="text-center py-4">
-                <p className="text-green-400 font-medium">Goal has been completed!</p>
-              </div>
-            ) : (
-              <div className="flex gap-3">
-                <Button
-                  onClick={() => setShowDepositInput(!showDepositInput)}
-                  variant="default"
-                  className="flex-1 bg-green-100 hover:bg-green-700 text-green-800 hover:text-white transition-all"
-                >
-                  <Plus size={16} className="mr-2" />
-                  Deposit
-                </Button>
-                <Button
-                  onClick={() => setShowWithdrawInput(!showWithdrawInput)}
-                  variant="default"
-                  className="flex-1 bg-red-100 hover:bg-red-700 text-red-800 hover:text-white transition-colors duration-300"
-                >
-                  <Minus size={16} className="mr-2" />
-                  Withdraw
-                </Button>
-              </div>
-            )}
-
-            {showDepositInput && (
-              <div className="mt-3 flex gap-2">
+            {showDepositInput ? (
+              <div className="mt-3 flex flex-col gap-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
                 <input
+                  autoFocus
                   type="number"
                   value={depositAmount}
                   onChange={(e) => setDepositAmount(e.target.value)}
-                  placeholder="Amount"
-                  className="flex-1 bg-slate-700 border-slate-600 text-white rounded-md px-3 py-2 focus:border-purple-500 focus:outline-none"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleDeposit();
+                    if (e.key === 'Escape') {
+                      setShowDepositInput(false);
+                      setDepositAmount('');
+                    }
+                  }}
+                  placeholder="Deposit Amount"
+                  className="w-full bg-slate-700 border-slate-600 text-white rounded-md px-3 py-2 focus:border-purple-500 focus:outline-none"
                 />
                 <Button
                   onClick={handleDeposit}
                   variant="default"
-                  className="bg-green-600 hover:bg-green-700 transition-all"
+                  className="w-full bg-green-600 hover:bg-green-700 transition-all"
                 >
-                  Confirm
+                  Confirm Deposit
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowDepositInput(false);
+                    setDepositAmount('');
+                  }}
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-slate-400 hover:text-white"
+                >
+                  Cancel
                 </Button>
               </div>
-            )}
-
-            {showWithdrawInput && (
-              <div className="mt-3 flex gap-2">
+            ) : showWithdrawInput ? (
+              <div className="mt-3 flex flex-col gap-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
                 <input
+                  autoFocus
                   type="number"
                   value={withdrawAmount}
                   onChange={(e) => setWithdrawAmount(e.target.value)}
-                  placeholder="Amount"
-                  className="flex-1 bg-slate-700 border-slate-600 text-white rounded-md px-3 py-2 focus:border-purple-500 focus:outline-none"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleWithdraw();
+                    if (e.key === 'Escape') {
+                      setShowWithdrawInput(false);
+                      setWithdrawAmount('');
+                    }
+                  }}
+                  placeholder="Withdraw Amount"
+                  className="w-full bg-slate-700 border-slate-600 text-white rounded-md px-3 py-2 focus:border-red-500 focus:outline-none"
                 />
                 <Button
                   onClick={handleWithdraw}
                   variant="destructive"
-                  className="bg-red-600 hover:bg-red-700 transition-all"
+                  className="w-full bg-red-600 hover:bg-red-700 transition-all"
                 >
-                  Confirm
+                  Confirm Withdraw
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowWithdrawInput(false);
+                    setWithdrawAmount('');
+                  }}
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-slate-400 hover:text-white"
+                >
+                  Cancel
                 </Button>
               </div>
+            ) : (
+              !isCompleted && (
+                <div className="flex flex-col gap-2 animate-in fade-in zoom-in-95 duration-200">
+                  <Button
+                    onClick={() => setShowDepositInput(true)}
+                    variant="default"
+                    className="w-full bg-green-100 hover:bg-green-700 text-green-800 hover:text-white transition-all"
+                  >
+                    <Plus size={16} className="mr-2" />
+                    Deposit
+                  </Button>
+                  <Button
+                    onClick={() => setShowWithdrawInput(true)}
+                    variant="default"
+                    className="w-full bg-red-100 hover:bg-red-700 text-red-800 hover:text-white transition-colors duration-300"
+                  >
+                    <Minus size={16} className="mr-2" />
+                    Withdraw
+                  </Button>
+                </div>
+              )
             )}
           </>
         )}
