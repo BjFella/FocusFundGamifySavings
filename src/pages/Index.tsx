@@ -192,7 +192,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         <header className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Goal Tracker</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Focus Fund Gamify</h1>
           <p className="text-slate-400">Track your savings goals and reach your targets</p>
         </header>
 
