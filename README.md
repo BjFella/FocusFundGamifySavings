@@ -7,21 +7,21 @@ A fun and engaging savings tracker that turns financial goal-setting into an enj
 - **Goal Tracking**: Create and manage multiple savings goals
 - **Visual Progress**: See your progress with intuitive visual indicators
 - **Gamification Elements**: 
-  - Achievement badges for milestones
+  - Achievement badges for milestones *TBA*
   - Progress tracking with visual feedback
-  - Reward system for reaching targets
+  - Reward system for reaching targets *TBA*
 - **Interactive UI**: 
   - Expand/collapse functionality for adding new goals
   - Image uploads for personalizing your goals
-  - Responsive design that works on all devices
-- **Financial Management**:
+  - Responsive design that works on all devices *TBD*
+- **Financial Management Mock**:
   - Deposit and withdraw funds
   - Track current vs target amounts
   - Visual statistics dashboard
 
 ## Demo
 
-![Goal Tracker Demo](https://images.unsplash.com/photo-1542362567-b07e54358753?w=800&h=400&fit=crop)
+![Goal Tracker Demo](https://i.imgur.com/R2DDqRv.png)
 
 ## Getting Started
 
@@ -34,7 +34,7 @@ A fun and engaging savings tracker that turns financial goal-setting into an enj
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/BjFella/FocusFundGamifySavings/tree/main/src
 ```
 
 2. Install dependencies:
@@ -65,7 +65,7 @@ npm run dev
 3. **Track Progress**:
    - View your progress toward each goal
    - See statistics in the dashboard
-   - Celebrate milestones as you reach targets
+   - Celebrate milestones as you reach targets *TBA*
 
 ## Tech Stack
 
